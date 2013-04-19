@@ -35,9 +35,15 @@ object General {
     AndroidManifestGenerator.settings ++
     AndroidMarketPublish.settings ++ Seq (
       keyalias in Android := "change-me",
-      libraryDependencies += "org.scalatest" %% "scalatest" % "1.9.1" % "test"
-    )
+
+
+		resolvers += "spray repo" at "http://repo.spray.io",
+
+      libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "1.9.1" % "test",
+"io.spray" %%  "spray-json" % "1.2.3"))
 }
+	  
+   
 
 object AndroidBuild extends Build {
   lazy val main = Project (
