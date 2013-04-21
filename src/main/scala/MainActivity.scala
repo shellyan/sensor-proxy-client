@@ -18,9 +18,8 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 import scala.util.parsing.json._
 import android.widget.AdapterView
-import android.view.View
-import android.widget.Toast
-import android.view.KeyEvent
+import android.view._
+import android.widget._
 class MainActivity extends Activity with TypedActivity {
 
   var cd: ConnectionDetector = null
@@ -34,8 +33,8 @@ class MainActivity extends Activity with TypedActivity {
   lazy val itemListView = findView(TR.location_list)
   lazy val test = findView(TR.test)
   var json = ""
+
   //  case class NamedList[A](items: List[A])
-  //
   //  object MyJsonProtocol extends DefaultJsonProtocol {
   //    implicit def namedListFormat[A: JsonFormat] = jsonFormat1(NamedList.apply[A])
   //  }
@@ -48,35 +47,51 @@ class MainActivity extends Activity with TypedActivity {
       alert.showAlertDialog(MainActivity.this, "Internet Connection Error",
         "Please connect to working Internet connection", false)
 
-    val loadItem = new loadItems(this).execute()
+    //
+    lazy val th = findView(TR.tabhost)
 
+    th.setup();
+    var specs = th.newTabSpec("tag1")
+    specs.setContent(R.id.tab1)
+    specs.setIndicator("Tab1")
+    th.addTab(specs)
+    specs = th.newTabSpec("tag2")
+    specs.setContent(R.id.tab2)
+    specs.setIndicator("Tab2")
+    th.addTab(specs)
+    specs = th.newTabSpec("tag3")
+    specs.setContent(R.id.tab2)
+    specs.setIndicator("Tab3")
+    th.addTab(specs)
+
+    val loadItem = new loadItems(this).execute()
     itemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
       override def onItemClick(parent: AdapterView[_], view: View, pos: Int, id: Long) {
-        //        Toast.makeText(view.getContext(), itemList(pos), Toast.LENGTH_SHORT).show()
-    	if(itemList.length!=1)  
+        //if (itemList.length != 1 )
         selectionLog += (selectionLog.last + itemList(pos) + "/")
         Toast.makeText(view.getContext(), selectionLog.last, Toast.LENGTH_SHORT).show()
-
         val loadItem = new loadItems(MainActivity.this).execute(selectionLog.last)
 
-      }
+        def isAllDigits(x: String) = x forall Character.isDigit
 
+      }
     })
-    //    getListView().setTextFilterEnabled(true)
-    //    findView(TR.test).setText(itemList.toString())
+
+    //
+
   }
 
   override def onKeyDown(keyCode: Int, event: android.view.KeyEvent): Boolean = {
     if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-       if (selectionLog.length == 1){
-        return super.onKeyDown(keyCode, event)}
+      if (selectionLog.length == 1) {
+        return super.onKeyDown(keyCode, event)
+      }
       Toast.makeText(this.getApplicationContext(), selectionLog.init.last, Toast.LENGTH_SHORT).show()
       val loadItem = new loadItems(MainActivity.this).execute(selectionLog.init.last)
       selectionLog.remove(selectionLog.length - 1)
-     
-      
-        return true
+
+      return true
     }
 
     return super.onKeyDown(keyCode, event)
@@ -94,11 +109,9 @@ class MainActivity extends Activity with TypedActivity {
     }
 
     override protected def doInBackground(params: AnyRef*): Boolean = {
-      //      val params: List[NameValuePair] = null
       json = jsonParser.makeHttpRequest(URL_ROOT, "GET", params)
       if (params.length != 0) {
         json = jsonParser.makeHttpRequest(params(0).asInstanceOf[String], "GET", params)
-
       }
       val jsonParsed = parseFull(json)
       itemList = jsonParsed.get.asInstanceOf[List[Any]].map(_.toString())
@@ -110,11 +123,8 @@ class MainActivity extends Activity with TypedActivity {
 
     override protected def onPostExecute(result: Boolean) {
       pDialog.dismiss()
-
       test.setText(json)
       val adapter = new ArrayAdapter[String](MainActivity.this, android.R.layout.simple_list_item_1, android.R.id.text1, itemList)
-      //val adapter = new ArrayAdapter[String](MainActivity.this, android.R.layout.simple_list_item_1, android.R.id.text1, ArrayBuffer("location1", "location2"))
-
       itemListView.setAdapter(adapter)
     }
 
