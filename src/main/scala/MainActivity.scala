@@ -1,6 +1,6 @@
 package cs.luc.edu.client
 
-import _root_.android.app.Activity
+import _root_.android.app._
 import spray.json._
 import DefaultJsonProtocol._
 import _root_.android.os.Bundle
@@ -20,7 +20,8 @@ import scala.util.parsing.json._
 import android.widget.AdapterView
 import android.view._
 import android.widget._
-class MainActivity extends Activity with TypedActivity {
+import android.content.Intent
+class MainActivity extends TabActivity with TypedActivity {
 
   var cd: ConnectionDetector = null
   lazy val alert = new AlertDialogManager()
@@ -34,10 +35,6 @@ class MainActivity extends Activity with TypedActivity {
   lazy val test = findView(TR.test)
   var json = ""
 
-  //  case class NamedList[A](items: List[A])
-  //  object MyJsonProtocol extends DefaultJsonProtocol {
-  //    implicit def namedListFormat[A: JsonFormat] = jsonFormat1(NamedList.apply[A])
-  //  }
 
   override def onCreate(bundle: Bundle) {
     super.onCreate(bundle)
@@ -46,9 +43,10 @@ class MainActivity extends Activity with TypedActivity {
     if (!cd.isConnectingToInternet)
       alert.showAlertDialog(MainActivity.this, "Internet Connection Error",
         "Please connect to working Internet connection", false)
+    var intent = new Intent(this,classOf[LoadItemActivity])
 
     //
-    lazy val th = findView(TR.tabhost)
+    lazy val th = getTabHost()
 
     th.setup();
     var specs = th.newTabSpec("tag1")
@@ -60,7 +58,8 @@ class MainActivity extends Activity with TypedActivity {
     specs.setIndicator("Tab2")
     th.addTab(specs)
     specs = th.newTabSpec("tag3")
-    specs.setContent(R.id.tab2)
+//    specs.setContent(R.id.tab3)
+    specs.setContent(intent)
     specs.setIndicator("Tab3")
     th.addTab(specs)
 
